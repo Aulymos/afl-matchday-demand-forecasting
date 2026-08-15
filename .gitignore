@@ -1,0 +1,29 @@
+# Python virtual environment
+AFL_venv/
+
+# Environment variables and credentials
+.env
+
+# Python-generated files
+__pycache__/
+*.py[cod]
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Tests and tooling
+.pytest_cache/
+.ruff_cache/
+
+# VS Code local settings
+.vscode/
+
+# Local data and generated model files
+data/raw/
+data/interim/
+data/processed/
+models/artifacts/
+
+# Logs and Windows files
+*.log
+Thumbs.db
