@@ -27,3 +27,6 @@ models/artifacts/
 # Logs and Windows files
 *.log
 Thumbs.db
+
+# Generated model artifacts
+models/candidates/*.joblib
