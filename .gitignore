@@ -30,3 +30,4 @@ Thumbs.db
 
 # Generated model artifacts
 models/candidates/*.joblib
+models/final/*.joblib

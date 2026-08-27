@@ -1,0 +1,3 @@
+model_key,model_name,selected_hyperparameters,evaluation_partition,trained_through,evaluation_season,mae,rmse,mean_prediction_error
+gradient_boosting,Gradient Boosting Regressor,learning_rate=0.1; max_depth=3; min_samples_leaf=2; n_estimators=500,2024 validation,2023,2024,5471.345292039425,7719.312864621789,-870.8606252567772
+gradient_boosting,Gradient Boosting Regressor,learning_rate=0.1; max_depth=3; min_samples_leaf=2; n_estimators=500,2025 locked test,2024,2025,4561.347312189119,6559.559333271034,410.1260761486837
