@@ -1,0 +1,4 @@
+attendance_level,lower_bound,upper_bound,sort_order,historical_matches,historical_percentage
+Low,,26999,1,777,0.33826730518067044
+Medium,27000,39999,2,756,0.3291249455811929
+High,40000,,3,764,0.3326077492381367
