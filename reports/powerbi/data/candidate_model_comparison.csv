@@ -1,0 +1,4 @@
+model_key,model_name,best_mean_cv_mae,best_std_cv_mae,best_mean_cv_rmse,best_std_cv_rmse,selected_hyperparameters
+ridge,Ridge Regression,6325.787400169848,228.5850124377547,8646.21810121626,307.5707920610665,alpha=10.0
+random_forest,Random Forest Regressor,6254.59540756335,358.3240688535454,8756.081101094882,418.07781879171904,max_depth=24; max_features=0.7; min_samples_leaf=1; n_estimators=300
+gradient_boosting,Gradient Boosting Regressor,5557.132309839188,204.22920337746055,7684.663283198254,312.53664637777706,learning_rate=0.1; max_depth=3; min_samples_leaf=2; n_estimators=500
