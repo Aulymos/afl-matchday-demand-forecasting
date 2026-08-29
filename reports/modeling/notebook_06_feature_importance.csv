@@ -1,0 +1,18 @@
+feature,feature_display_name,mae_increase_mean,mae_increase_std,importance_rank
+venue_last_10_attendance_mean,Venue recent attendance,7705.94,490.33,1
+venue_name,Venue,1894.35,214.6,2
+away_team,Away team,1857.62,266.19,3
+home_team,Home team,1795.31,216.28,4
+match_month,Match month,552.67,114.73,5
+match_day_of_week,Day of week,490.91,95.15,6
+home_team_last_5_score_margin_mean,Home recent score margin,481.4,78.61,7
+away_team_last_5_attendance_mean,Away recent attendance,437.35,142.68,8
+home_team_last_5_attendance_mean,Home recent attendance,428.12,79.5,9
+home_team_last_5_win_rate,Home recent win rate,427.52,82.58,10
+round_label,Round,368.83,74.27,11
+start_hour,Start time,351.38,93.89,12
+away_team_last_5_score_margin_mean,Away recent score margin,155.62,83.4,13
+is_night_match,Night match,69.26,23.82,14
+away_team_last_5_win_rate,Away recent win rate,30.04,42.21,15
+is_school_holiday,School holiday,2.66,2.81,16
+season_year,Season,0.0,0.0,17

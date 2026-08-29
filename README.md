@@ -18,12 +18,19 @@ This page ranks the nine confirmed 2026 Round 24 fixtures available in the 17 Au
 
 This page communicates the evidence behind the forecasts: locked-test error, prediction bias, actual-versus-predicted performance, the selected model, and the time-aware candidate-model comparison.
 
+### Page 3 - Model Diagnostics
+
+![Model Diagnostics dashboard](reports/dashboard/model_diagnostics_dashboard.png)
+
+This page provides post-evaluation diagnostics for the frozen model. It shows the distribution and direction of prediction errors across the 216 locked-test fixtures, together with the eight leading permutation-importance drivers.
+
 Report files:
 
-- [Two-page dashboard export (PDF)](reports/dashboard/afl_matchday_demand_dashboard.pdf)
+- [Three-page dashboard export (PDF)](reports/dashboard/afl_matchday_demand_dashboard.pdf)
 - [Interactive Power BI report (PBIX)](reports/powerbi/afl_matchday_demand_planning.pbix)
 - [Page 1 preview (PNG)](reports/dashboard/afl_attendance_forecasting_dashboard.png)
 - [Page 2 preview (PNG)](reports/dashboard/model_performance_dashboard.png)
+- [Page 3 preview (PNG)](reports/dashboard/model_diagnostics_dashboard.png)
 
 ## Project outcomes
 
@@ -37,6 +44,8 @@ Report files:
 | 2024 validation | MAE 5,471; RMSE 7,719 |
 | 2025 locked test | MAE 4,561; RMSE 6,560; mean prediction error +410 |
 | Locked-test accuracy band | 50.9% of fixtures predicted within +/-10% of actual attendance |
+| Locked-test error direction | 121 overpredictions and 95 underpredictions across 216 fixtures |
+| Leading diagnostic driver | Venue recent attendance; shuffling it increased locked-test MAE by 7,706 attendees on average |
 | 2026 scoring snapshot | 9 confirmed Round 24 fixtures as at 17 August 2026 |
 | Demand mix | 3 High, 5 Medium, and 1 Low fixture |
 
@@ -56,7 +65,7 @@ flowchart TD
     D --> E[Tune candidate models]
     E --> F[Validate, freeze, and test]
     F --> G[Score 2026 fixtures]
-    G --> H[Deliver Power BI report]
+    G --> H[Deliver three-page Power BI report]
 ```
 
 The workflow is implemented across seven executed notebooks:
@@ -68,7 +77,7 @@ The workflow is implemented across seven executed notebooks:
 | [03 - PostgreSQL data loading](notebooks/03_postgresql_data_loading.ipynb) | Create schemas and tables, load the prepared data in one transaction, and validate keys and relationships | Five validated `staging` tables |
 | [04 - Feature engineering](notebooks/04_feature_engineering.ipynb) | Build leakage-safe historical features and align the historical and 2026 scoring schemas | 2,297 historical rows and 9 scoring rows with 17 ordered features |
 | [05 - Candidate training and tuning](notebooks/05_candidate_model_training_and_tuning.ipynb) | Tune three regression families with six expanding-window cross-validation folds | One fitted candidate pipeline per model family |
-| [06 - Final selection and evaluation](notebooks/06_final_model_selection_and_evaluation.ipynb) | Select on 2024 validation data, freeze the specification, and evaluate once on 2025 | Frozen Gradient Boosting specification and locked-test evidence |
+| [06 - Final selection and evaluation](notebooks/06_final_model_selection_and_evaluation.ipynb) | Select on 2024 validation data, freeze the specification, evaluate once on 2025, and produce post-evaluation diagnostics | Frozen Gradient Boosting specification, locked-test predictions, error diagnostics, and feature-importance exports |
 | [07 - 2026 forecast and planning](notebooks/07_2026_attendance_forecast_and_matchday_planning.ipynb) | Refit the frozen pipeline through 2025, score confirmed fixtures, assign demand levels, and export BI inputs | Fixture forecasts, threshold reference, and Power BI data |
 
 ## Data preparation and database design
@@ -148,6 +157,25 @@ After selection, the same specification was refitted on the training and 2024 va
 
 The positive mean prediction error indicates a small overall tendency to overpredict. Error dispersion is wider for some medium- and high-attendance matches, so the model is positioned as a demand-prioritisation tool rather than an exact attendance commitment.
 
+### Post-evaluation diagnostics
+
+After the locked-test metrics were finalised, Notebook 06 generated diagnostic outputs without revisiting model selection or hyperparameter tuning. Prediction error is defined as predicted minus actual attendance. Across the 216 locked-test fixtures, 121 predictions were above actual attendance and 95 were below it. The distribution is concentrated near zero: 89 fixtures (41.2%) had an absolute prediction error below 2,500 attendees, while a small number of fixtures form wider error tails.
+
+Permutation importance was then calculated on the frozen pipeline using 30 seeded repeats. Each feature was shuffled in turn, and the resulting increase in locked-test MAE was recorded:
+
+| Rank | Feature | Mean MAE increase (attendees) | Std. dev. (attendees) |
+|---:|---|---:|---:|
+| 1 | Venue recent attendance | 7,706 | 490 |
+| 2 | Venue | 1,894 | 215 |
+| 3 | Away team | 1,858 | 266 |
+| 4 | Home team | 1,795 | 216 |
+| 5 | Match month | 553 | 115 |
+| 6 | Day of week | 491 | 95 |
+| 7 | Home recent score margin | 481 | 79 |
+| 8 | Away recent attendance | 437 | 143 |
+
+Venue recent attendance is the dominant predictive signal for the frozen model. These results measure predictive reliance rather than causal impact, and correlated predictors can share or dilute their individual importance.
+
 After locked-test evaluation was complete, the unchanged pipeline was refitted on all 2,297 eligible matches through 2025 for forward scoring.
 
 ## 2026 forecast snapshot
@@ -182,8 +210,8 @@ The average forecast across the nine fixtures is 40,260 attendees. Three fixture
 .
 |-- notebooks/                 # Executed notebooks 01-07
 |-- reports/
-|   |-- dashboard/             # Two dashboard PNGs and the two-page PDF
-|   |-- modeling/              # Versioned tuning and evaluation summaries
+|   |-- dashboard/             # Three dashboard PNGs and the three-page PDF
+|   |-- modeling/              # Versioned tuning, evaluation, and diagnostic outputs
 |   `-- powerbi/               # PBIX source and reporting input CSVs
 |-- sql/                       # PostgreSQL schema and staging-table DDL
 |-- src/                       # Database connection check
@@ -214,7 +242,7 @@ The repository does not redistribute the raw source files. To reproduce the comp
 ## Technology
 
 - Python, pandas, NumPy, and Matplotlib
-- scikit-learn pipelines, time-aware cross-validation, and joblib
+- scikit-learn pipelines, time-aware cross-validation, permutation importance, and joblib
 - PostgreSQL and psycopg
 - Power BI, Power Query, and DAX
 - Git and GitHub
@@ -226,10 +254,11 @@ The repository does not redistribute the raw source files. To reproduce the comp
 - The 2026 forecast is based on a frozen 17 August snapshot and does not reflect later fixture or operational changes.
 - Actual 2026 attendance was not available at scoring time, so the 2025 locked-test metrics provide historical context rather than a fixture-specific error bound.
 - The model produces point forecasts rather than formal prediction intervals.
+- Permutation importance reflects predictive reliance rather than causality, and correlated predictors can share or dilute importance.
 - Demand levels are relative historical attendance bands and should be combined with current operational information before decisions are finalised.
 
 ## Project status
 
-Version 1 is complete through data audit, PostgreSQL loading, leakage-safe feature engineering, time-aware model selection, locked-test evaluation, 2026 fixture scoring, and two-page Power BI delivery.
+Version 1 is complete through data audit, PostgreSQL loading, leakage-safe feature engineering, time-aware model selection, locked-test evaluation and diagnostics, 2026 fixture scoring, and three-page Power BI delivery.
 
 This is an independent portfolio project and is not affiliated with, endorsed by, or based on internal data from the AFL or any AFL club.
